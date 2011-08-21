@@ -13,14 +13,15 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
 public class CsvViewerEndToEndTest {
+    private static final String FILE_NAME = "test.csv";
     private final CsvFileBuilder aCsvFile = new CsvFileBuilder();
     private final ApplicationRunner client = new ApplicationRunner();
 
     @Test
     public void showCsvFileContainingOneHeaderColumn() throws Exception {
         String fileContent = "Name;" + lineSeparator();
-        aCsvFile.withName("test.csv").containing(fileContent).build();
-        client.startsCsvViewerForFile("test.csv");
+        aCsvFile.withName(FILE_NAME).containing(fileContent).build();
+        client.startsCsvViewerForFile(FILE_NAME);
         String expectedCsvViewerOutput = "Name|" + lineSeparator() +
                                          "----+";
         assertThat("Csv Viewer Output", client.csvViewerOutput, is(equalTo(expectedCsvViewerOutput)));
@@ -28,6 +29,6 @@ public class CsvViewerEndToEndTest {
 
     @After
     public void deleteCsvFile() {
-        deleteQuietly(new File("test.csv"));
+        deleteQuietly(new File(FILE_NAME));
     }
 }
