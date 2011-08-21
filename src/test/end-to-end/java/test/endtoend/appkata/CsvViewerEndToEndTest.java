@@ -7,6 +7,7 @@ import org.junit.Test;
 import java.io.File;
 
 import static java.lang.System.lineSeparator;
+import static org.apache.commons.io.FileUtils.deleteQuietly;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -27,6 +28,6 @@ public class CsvViewerEndToEndTest {
 
     @After
     public void deleteCsvFile() {
-        FileUtils.deleteQuietly(new File("test.csv"));
+        deleteQuietly(new File("test.csv"));
     }
 }

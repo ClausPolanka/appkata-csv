@@ -1,11 +1,16 @@
 package test.endtoend.appkata;
 
+import appkata.Main;
+import org.apache.commons.io.FileUtils;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import static appkata.Main.FILE_ENCODING;
 import static junit.framework.Assert.assertTrue;
+import static org.apache.commons.io.FileUtils.writeStringToFile;
 
 public class CsvFileBuilder {
     private String fileName;
@@ -23,12 +28,10 @@ public class CsvFileBuilder {
 
     public void build() {
         try {
-            BufferedWriter out = new BufferedWriter(new FileWriter(fileName));
-            out.write(fileContent);
-            out.close();
+            writeStringToFile(new File(fileName), fileContent, FILE_ENCODING);
         } catch (IOException e) {
-            System.err.println("Problems occured while creating a file and writing to it");
+            System.err.println("Problems occurred while creating a file and writing to it");
         }
-        assertTrue("File exists", new File(fileName).exists());
+        assertTrue("Csv file must exist", new File(fileName).exists());
     }
 }

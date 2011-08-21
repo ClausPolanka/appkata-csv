@@ -7,7 +7,7 @@ import static org.apache.commons.io.FileUtils.readFileToString;
 
 public class Main {
     private static final int ARGS_FILE_NAME = 0;
-    private static final String FILE_ENCODING = "UTF-8";
+    public static final String FILE_ENCODING = "UTF-8";
     public static String generatedResult;
 
     public static void main(String... args) {
@@ -18,7 +18,7 @@ public class Main {
 
     private static String fileContentOf(String fileName) {
         try {
-            readFileToString(new File(fileName), FILE_ENCODING);
+            return readFileToString(new File(fileName));
         } catch (IOException e) {
             System.err.println("Problems reading file content.");
         }
