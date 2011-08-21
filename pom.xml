@@ -20,8 +20,10 @@
 						</goals>
 						<configuration>
 							<sources>
-								<source>src/test/end-to-end</source>
-								<source>src/test/unit</source>
+								<source>src/test/end-to-end/java</source>
+								<source>src/test/end-to-end/resources</source>
+								<source>src/test/unit/java</source>
+								<source>src/test/unit/resources</source>
 							</sources>
 						</configuration>
 					</execution>
