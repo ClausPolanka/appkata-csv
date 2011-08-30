@@ -3,10 +3,12 @@ package appkata;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 
-import static java.lang.Math.log;
 import static java.lang.Math.max;
 import static java.lang.String.format;
 import static java.lang.System.lineSeparator;
+import static org.apache.commons.lang.StringUtils.EMPTY;
+import static org.apache.commons.lang.StringUtils.repeat;
+import static org.apache.commons.lang.StringUtils.split;
 
 public class CsvViewer {
     private static final String HEADER_COLUMN_SEPARATOR = "|";
@@ -21,87 +23,46 @@ public class CsvViewer {
     }
 
     public void view(String fileContent) {
-        String[] lines = toArrayOfLines(fileContent);
-
-        HashMap<Integer, Integer> maxDelimDistances = calculateMaximumDistancesForColumnSeparator(lines);
-
-        String headerColumns = createHeaderFor(lines[HEADER_ROW], maxDelimDistances);
+        String[] fileContentRows = split(fileContent);
+        HashMap<Integer, Integer> separatorDistances = calculateMaximumDistancesForColumnSeparator(fileContentRows);
+        String headerColumns = createHeaderFor(fileContentRows[HEADER_ROW], separatorDistances);
         String headerSeparator = createHeaderSeparatorFor(headerColumns);
-        String tableContent = createTableContentFor(lines, maxDelimDistances);
-
+        String tableContent = createTableContentFor(fileContentRows, separatorDistances);
         StringBuffer output = new StringBuffer();
-        output.append(headerColumns + lineSeparator());
-        output.append(headerSeparator);
-        output.append(tableContent);
+        output.append(headerColumns + lineSeparator())
+              .append(headerSeparator)
+              .append(tableContent);
         generatedResult = output.toString();
-    }
-
-    private String createTableContentFor(String[] lines, HashMap<Integer, Integer> maxDelimDistances) {
-        if (onlyContainsHeader(lines)) {
-            return "";
-        }
-        StringBuffer tableContent = new StringBuffer();
-        tableContent.append(lineSeparator());
-        for (int i = 1; i < lines.length; i++) {
-            StringBuffer tableRow = new StringBuffer();
-            StringTokenizer tokenizer = new StringTokenizer(lines[i], COLUMN_SEPARATOR);
-            for (int j = 0; tokenizer.hasMoreTokens(); j++) {
-                String token = tokenizer.nextToken();
-                tableRow.append(format("%s%s|", token, whiteSpaces(maxDelimDistances.get(i-1) - token.length())));
-            }
-            tableContent.append(tableRow);
-        }
-        return tableContent.toString();
-    }
-
-    private boolean onlyContainsHeader(String[] lines) {
-        return lines.length <= 1;
-    }
-
-    private String[] toArrayOfLines(String fileContent) {
-        StringTokenizer tokenizer = new StringTokenizer(fileContent, lineSeparator());
-        String[] lines = new String[tokenizer.countTokens()];
-        for (int i = 0; tokenizer.hasMoreTokens(); i++) {
-            lines[i] = tokenizer.nextToken();
-        }
-        return lines;
     }
 
     private HashMap<Integer, Integer> calculateMaximumDistancesForColumnSeparator(String[] lines) {
         HashMap<Integer, Integer> maxDelimDistances = new HashMap<Integer, Integer>();
         for (int lineIndex = 1; lineIndex < lines.length; lineIndex++) {
-            StringTokenizer tokenizer = new StringTokenizer(lines[lineIndex], COLUMN_SEPARATOR);
-            for (int columnIndex = 0; tokenizer.hasMoreElements(); columnIndex++) {
-                Integer currentMaxDistance = maxDelimDistances.get(columnIndex);
-                String token = tokenizer.nextToken();
-                if (currentMaxDistance == null) {
-                    maxDelimDistances.put(columnIndex, token.length());
-                    continue;
-                }
-                maxDelimDistances.put(columnIndex, max(currentMaxDistance, token.length()));
-            }
+            putMaximumDistanceFor(lines[lineIndex], maxDelimDistances);
         }
         return maxDelimDistances;
+    }
+
+    private void putMaximumDistanceFor(String line, HashMap<Integer, Integer> maxDelimDistances) {
+        StringTokenizer tokenizer = new StringTokenizer(line, COLUMN_SEPARATOR);
+        for (int columnIndex = 0; tokenizer.hasMoreElements(); columnIndex++) {
+            Integer currentMaxDistance = maxDelimDistances.get(columnIndex);
+            String token = tokenizer.nextToken();
+            maxDelimDistances.put(columnIndex, max(currentMaxDistance == null ? 0 : currentMaxDistance, token.length()));
+        }
     }
 
     private String createHeaderFor(String firstLineOfFile, HashMap<Integer, Integer> maxDelimDistances) {
         StringBuffer headerColumns = new StringBuffer();
         StringTokenizer st = new StringTokenizer(withoutLineSeparator(firstLineOfFile), COLUMN_SEPARATOR);
-        for (int i = 0; st.hasMoreTokens(); i++) {
+        for (int columnIndex = 0; st.hasMoreTokens(); columnIndex++) {
             String column = st.nextToken();
-            int max = max(column.length(), maxDelimDistances.get(i) == null ? 0 : maxDelimDistances.get(i));
-            maxDelimDistances.put(i, max);
-            headerColumns.append(format("%s%s%s", column, whiteSpaces(max-column.length()), HEADER_COLUMN_SEPARATOR));
+            Integer delimDistance = maxDelimDistances.get(columnIndex);
+            int max = max(column.length(), delimDistance == null ? 0 : delimDistance);
+            maxDelimDistances.put(columnIndex, max);
+            headerColumns.append(format("%s%s%s", column, repeat(" ", max - column.length()), HEADER_COLUMN_SEPARATOR));
         }
         return headerColumns.toString();
-    }
-
-    private String whiteSpaces(int times) {
-        StringBuilder hyphens = new StringBuilder();
-        for (int i = 0; i < times; i++) {
-            hyphens.append(" ");
-        }
-        return hyphens.toString();
     }
 
     private String withoutLineSeparator(String fileContent) {
@@ -113,17 +74,36 @@ public class CsvViewer {
         StringTokenizer st = new StringTokenizer(headerColumns, HEADER_COLUMN_SEPARATOR);
         while (st.hasMoreTokens()) {
             String column = st.nextToken();
-            headerSeparator.append(format("%s+", hyphens(column.length())));
+            headerSeparator.append(format("%s+", repeat("-", column.length())));
         }
         return headerSeparator.toString();
     }
 
-    private String hyphens(int times) {
-        StringBuilder hyphens = new StringBuilder();
-        for (int i = 0; i < times; i++) {
-            hyphens.append("-");
+    private String createTableContentFor(String[] lines, HashMap<Integer, Integer> maxDelimDistances) {
+        if (onlyContainsHeader(lines)) {
+            return EMPTY;
         }
-        return hyphens.toString();
+        StringBuffer tableContent = new StringBuffer();
+        tableContent.append(lineSeparator());
+        for (int i = 1; i < lines.length; i++) {
+            StringBuffer tableRow = toTableRow(lines[i], maxDelimDistances.get(i - 1));
+            tableContent.append(tableRow);
+        }
+        return tableContent.toString();
+    }
+
+    private boolean onlyContainsHeader(String[] lines) {
+        return lines.length <= 1;
+    }
+
+    private StringBuffer toTableRow(String line, Integer maxDelimiterDistance) {
+        StringBuffer tableRow = new StringBuffer();
+        StringTokenizer tokenizer = new StringTokenizer(line, COLUMN_SEPARATOR);
+        while (tokenizer.hasMoreTokens()) {
+            String token = tokenizer.nextToken();
+            tableRow.append(format("%s%s|", token, repeat(" ", maxDelimiterDistance - token.length())));
+        }
+        return tableRow;
     }
 
     public String output() {
