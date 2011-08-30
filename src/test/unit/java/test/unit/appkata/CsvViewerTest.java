@@ -19,6 +19,16 @@ public class CsvViewerTest {
         csvViewer.view(fileContent);
         String expectedViewerOutput = "Name|" + lineSeparator() +
                                       "----+";
-        assertThat("Generated result", csvViewer.output(), is(equalTo(expectedViewerOutput)));
+        assertThat("Generated viewer output", csvViewer.output(), is(equalTo(expectedViewerOutput)));
+    }
+
+    @Test
+    public void viewOutputContainingHeaderWithSeveralColumnsForGivenCsvFileContent() throws Exception {
+        CsvViewer csvViewer = new CsvViewer(IGNORE_DISPLAY);
+        String fileContent = "Name;Age;City;" + lineSeparator();
+        csvViewer.view(fileContent);
+        String expectedViewerOutput = "Name|Age|City|" + lineSeparator() +
+                                      "----+---+----+";
+        assertThat("Generated viewer output", csvViewer.output(), is(equalTo(expectedViewerOutput)));
     }
 }
