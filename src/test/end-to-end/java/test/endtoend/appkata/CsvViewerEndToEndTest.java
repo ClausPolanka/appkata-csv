@@ -37,6 +37,18 @@ public class CsvViewerEndToEndTest {
         assertThat("Csv Viewer Output", client.csvViewerOutput, is(equalTo(expectedCsvViewerOutput)));
     }
 
+    @Test
+    public void showCsvFileContainingOneHeaderColumnAndOneTableLine() throws Exception {
+        String fileContent = "Name;" + lineSeparator() +
+                             "Peter;";
+        aCsvFile.withName(FILE_NAME).containing(fileContent).build();
+        client.startsCsvViewerForFile(FILE_NAME);
+        String expectedCsvViewerOutput = "Name |" + lineSeparator() +
+                                         "-----+" + lineSeparator() +
+                                         "Peter|";
+        assertThat("Csv Viewer Output", client.csvViewerOutput, is(equalTo(expectedCsvViewerOutput)));
+    }
+
     @After
     public void deleteCsvFile() {
         deleteQuietly(new File(FILE_NAME));

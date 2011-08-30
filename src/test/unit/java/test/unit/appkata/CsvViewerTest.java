@@ -31,4 +31,16 @@ public class CsvViewerTest {
                                       "----+---+----+";
         assertThat("Generated viewer output", csvViewer.output(), is(equalTo(expectedViewerOutput)));
     }
+
+    @Test
+    public void viewOutputContainingHeaderWithOneColumnAndOneTableLineForGivenCsvFileContent() throws Exception {
+        CsvViewer csvViewer = new CsvViewer(IGNORE_DISPLAY);
+        String fileContent = "Name;" + lineSeparator() +
+                             "Peter;";
+        csvViewer.view(fileContent);
+        String expectedViewerOutput = "Name |" + lineSeparator() +
+                                      "-----+" + lineSeparator() +
+                                      "Peter|";
+        assertThat("Generated viewer output", csvViewer.output(), is(equalTo(expectedViewerOutput)));
+    }
 }
