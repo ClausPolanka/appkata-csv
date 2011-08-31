@@ -18,34 +18,18 @@ public class CsvViewerEndToEndTest {
     private final ApplicationRunner client = new ApplicationRunner();
 
     @Test
-    public void showCsvFileContainingOneHeaderColumn() throws Exception {
-        String fileContent = "Name;" + lineSeparator();
+    public void showCsvFileContainingSeveralHeaderColumnsAndSeveralTableLines() throws Exception {
+        String fileContent = "Name;Age;City;" + lineSeparator() +
+                             "Peter;42;New York;" + lineSeparator() +
+                             "Paul;57;London;" + lineSeparator() +
+                             "Mary;35;Munich;";
         aCsvFile.withName(FILE_NAME).containing(fileContent).build();
         client.startsCsvViewerForFile(FILE_NAME);
-        String expectedCsvViewerOutput = "Name|" + lineSeparator() +
-                                         "----+";
-        assertThat("Csv Viewer Output", client.csvViewerOutput, is(equalTo(expectedCsvViewerOutput)));
-    }
-
-    @Test
-    public void showCsvFileContainingSeveralHeaderColumns() throws Exception {
-        String fileContent = "Name;Age;City;" + lineSeparator();
-        aCsvFile.withName(FILE_NAME).containing(fileContent).build();
-        client.startsCsvViewerForFile(FILE_NAME);
-        String expectedCsvViewerOutput = "Name|Age|City|" + lineSeparator() +
-                                         "----+---+----+";
-        assertThat("Csv Viewer Output", client.csvViewerOutput, is(equalTo(expectedCsvViewerOutput)));
-    }
-
-    @Test
-    public void showCsvFileContainingOneHeaderColumnAndOneTableLine() throws Exception {
-        String fileContent = "Name;" + lineSeparator() +
-                             "Peter;";
-        aCsvFile.withName(FILE_NAME).containing(fileContent).build();
-        client.startsCsvViewerForFile(FILE_NAME);
-        String expectedCsvViewerOutput = "Name |" + lineSeparator() +
-                                         "-----+" + lineSeparator() +
-                                         "Peter|";
+        String expectedCsvViewerOutput = "Name |Age|City    |" + lineSeparator() +
+                                         "-----+---+--------+" + lineSeparator() +
+                                         "Peter|42 |New York|" + lineSeparator() +
+                                         "Paul |57 |London  |" + lineSeparator() +
+                                         "Mary |35 |Munich  |";
         assertThat("Csv Viewer Output", client.csvViewerOutput, is(equalTo(expectedCsvViewerOutput)));
     }
 

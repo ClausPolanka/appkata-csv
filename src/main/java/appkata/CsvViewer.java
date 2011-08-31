@@ -1,14 +1,16 @@
 package appkata;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.HashMap;
 import java.util.StringTokenizer;
 
 import static java.lang.Math.max;
 import static java.lang.String.format;
 import static java.lang.System.lineSeparator;
-import static org.apache.commons.lang.StringUtils.EMPTY;
-import static org.apache.commons.lang.StringUtils.repeat;
-import static org.apache.commons.lang.StringUtils.split;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static org.apache.commons.lang3.StringUtils.repeat;
+import static org.apache.commons.lang3.StringUtils.split;
 
 public class CsvViewer {
     private static final String HEADER_COLUMN_SEPARATOR = "|";
@@ -23,12 +25,12 @@ public class CsvViewer {
     }
 
     public void view(String fileContent) {
-        String[] fileContentRows = split(fileContent);
+        String[] fileContentRows = split(fileContent, lineSeparator());
         HashMap<Integer, Integer> separatorDistances = calculateMaximumDistancesForColumnSeparator(fileContentRows);
         String headerColumns = createHeaderFor(fileContentRows[HEADER_ROW], separatorDistances);
         String headerSeparator = createHeaderSeparatorFor(headerColumns);
         String tableContent = createTableContentFor(fileContentRows, separatorDistances);
-        StringBuffer output = new StringBuffer();
+        StringBuilder output = new StringBuilder();
         output.append(headerColumns + lineSeparator())
               .append(headerSeparator)
               .append(tableContent);
@@ -53,7 +55,7 @@ public class CsvViewer {
     }
 
     private String createHeaderFor(String firstLineOfFile, HashMap<Integer, Integer> maxDelimDistances) {
-        StringBuffer headerColumns = new StringBuffer();
+        StringBuilder headerColumns = new StringBuilder();
         StringTokenizer st = new StringTokenizer(withoutLineSeparator(firstLineOfFile), COLUMN_SEPARATOR);
         for (int columnIndex = 0; st.hasMoreTokens(); columnIndex++) {
             String column = st.nextToken();
@@ -70,7 +72,7 @@ public class CsvViewer {
     }
 
     private String createHeaderSeparatorFor(String headerColumns) {
-        StringBuffer headerSeparator = new StringBuffer();
+        StringBuilder headerSeparator = new StringBuilder();
         StringTokenizer st = new StringTokenizer(headerColumns, HEADER_COLUMN_SEPARATOR);
         while (st.hasMoreTokens()) {
             String column = st.nextToken();
@@ -83,11 +85,15 @@ public class CsvViewer {
         if (onlyContainsHeader(lines)) {
             return EMPTY;
         }
-        StringBuffer tableContent = new StringBuffer();
+        StringBuilder tableContent = new StringBuilder();
         tableContent.append(lineSeparator());
         for (int i = 1; i < lines.length; i++) {
-            StringBuffer tableRow = toTableRow(lines[i], maxDelimDistances.get(i - 1));
+            StringBuilder tableRow = toTableRow(lines[i], maxDelimDistances);
             tableContent.append(tableRow);
+            boolean isNotLastLine = i < (lines.length - 1);
+            if (isNotLastLine) {
+                tableContent.append(lineSeparator());
+            }
         }
         return tableContent.toString();
     }
@@ -96,12 +102,12 @@ public class CsvViewer {
         return lines.length <= 1;
     }
 
-    private StringBuffer toTableRow(String line, Integer maxDelimiterDistance) {
-        StringBuffer tableRow = new StringBuffer();
+    private StringBuilder toTableRow(String line, HashMap<Integer, Integer> maxDelimiterDistance) {
+        StringBuilder tableRow = new StringBuilder();
         StringTokenizer tokenizer = new StringTokenizer(line, COLUMN_SEPARATOR);
-        while (tokenizer.hasMoreTokens()) {
+        for (int i = 0; tokenizer.hasMoreTokens(); i++) {
             String token = tokenizer.nextToken();
-            tableRow.append(format("%s%s|", token, repeat(" ", maxDelimiterDistance - token.length())));
+            tableRow.append(format("%s%s|", token, repeat(" ", maxDelimiterDistance.get(i) - token.length())));
         }
         return tableRow;
     }

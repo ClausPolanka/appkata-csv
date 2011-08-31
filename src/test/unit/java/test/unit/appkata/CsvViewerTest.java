@@ -43,4 +43,32 @@ public class CsvViewerTest {
                                       "Peter|";
         assertThat("Generated viewer output", csvViewer.output(), is(equalTo(expectedViewerOutput)));
     }
+
+    @Test
+    public void viewOutputContainingHeaderWithSeveralColumnsAndOneTableLineForGivenCsvFileContent() throws Exception {
+        CsvViewer csvViewer = new CsvViewer(IGNORE_DISPLAY);
+        String fileContent = "Name;Age;City;" + lineSeparator() +
+                             "Peter;42;New York;";
+        csvViewer.view(fileContent);
+        String expectedViewerOutput = "Name |Age|City    |" + lineSeparator() +
+                                      "-----+---+--------+" + lineSeparator() +
+                                      "Peter|42 |New York|";
+        assertThat("Generated viewer output", csvViewer.output(), is(equalTo(expectedViewerOutput)));
+    }
+
+    @Test
+    public void viewOutputContainingHeaderWithSeveralColumnsAndSeveralTableLinesForGivenCsvFileContent() throws Exception {
+        CsvViewer csvViewer = new CsvViewer(IGNORE_DISPLAY);
+        String fileContent = "Name;Age;City;" + lineSeparator() +
+                             "Peter;42;New York;" + lineSeparator() +
+                             "Paul;57;London;" + lineSeparator() +
+                             "Mary;35;Munich;";
+        csvViewer.view(fileContent);
+        String expectedViewerOutput = "Name |Age|City    |" + lineSeparator() +
+                                      "-----+---+--------+" + lineSeparator() +
+                                      "Peter|42 |New York|" + lineSeparator() +
+                                      "Paul |57 |London  |" + lineSeparator() +
+                                      "Mary |35 |Munich  |";
+        assertThat("Generated viewer output", csvViewer.output(), is(equalTo(expectedViewerOutput)));
+    }
 }
