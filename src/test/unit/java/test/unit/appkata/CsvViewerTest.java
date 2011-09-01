@@ -7,6 +7,7 @@ import org.jmock.auto.Mock;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
+
 import static java.lang.System.lineSeparator;
 
 public class CsvViewerTest {

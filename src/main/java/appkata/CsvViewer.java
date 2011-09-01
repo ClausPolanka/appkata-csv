@@ -18,7 +18,6 @@ public class CsvViewer {
     private static final String COLUMN_SEPARATOR = ";";
 
     private final Display display;
-    private String generatedResult;
 
     public CsvViewer(Display display) {
         this.display = display;
@@ -34,7 +33,7 @@ public class CsvViewer {
         output.append(headerColumns + lineSeparator())
               .append(headerSeparator)
               .append(tableContent);
-        generatedResult = output.toString();
+        display.print(output.toString());
     }
 
     private HashMap<Integer, Integer> calculateMaximumDistancesForColumnSeparator(String[] lines) {
@@ -110,9 +109,5 @@ public class CsvViewer {
             tableRow.append(format("%s%s|", token, repeat(" ", maxDelimiterDistance.get(i) - token.length())));
         }
         return tableRow;
-    }
-
-    public String output() {
-        return generatedResult;
     }
 }
