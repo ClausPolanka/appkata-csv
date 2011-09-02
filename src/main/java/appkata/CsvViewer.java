@@ -6,14 +6,19 @@ import java.util.StringTokenizer;
 import static java.lang.Math.max;
 import static java.lang.String.format;
 import static java.lang.System.lineSeparator;
+import static java.util.Arrays.copyOfRange;
 import static org.apache.commons.lang3.StringUtils.*;
 
 public class CsvViewer {
     private static final String HEADER_COLUMN_SEPARATOR = "|";
     private static final String CVS_COLUMN_SEPARATOR = ";";
-    private static final int HEADER_ROW = 0;
+    private static final int HEADER_ROW_INDEX = 0;
+    private static final int HEADER_ROW = 1;
+    private static final int FIRST_TABLE_ROW = 1;
 
     private final Display display;
+    private int pageSize = 3;
+    private boolean footerMustBeAppended;
 
     public CsvViewer(Display display) {
         this.display = display;
@@ -21,8 +26,9 @@ public class CsvViewer {
 
     public void view(String fileContent) {
         String[] fileContentRows = split(fileContent, lineSeparator());
+        fileContentRows = splitIntoTablePages(fileContentRows);
         HashMap<Integer, Integer> separatorDistances = calculateMaximumDistancesForColumnSeparator(fileContentRows);
-        String headerColumns = createHeaderFor(fileContentRows[HEADER_ROW], separatorDistances);
+        String headerColumns = createHeaderFor(fileContentRows[HEADER_ROW_INDEX], separatorDistances);
         String headerSeparator = createHeaderSeparatorFor(headerColumns);
         String tableContent = createTableContentFor(fileContentRows, separatorDistances);
         StringBuilder output = new StringBuilder();
@@ -30,6 +36,14 @@ public class CsvViewer {
               .append(headerSeparator)
               .append(tableContent);
         display.print(output.toString());
+    }
+
+    private String[] splitIntoTablePages(String[] fileContentRows) {
+        if ((fileContentRows.length - HEADER_ROW) > pageSize) {
+            footerMustBeAppended = true;
+            fileContentRows = copyOfRange(fileContentRows, HEADER_ROW_INDEX, HEADER_ROW + pageSize);
+        }
+        return fileContentRows;
     }
 
     private HashMap<Integer, Integer> calculateMaximumDistancesForColumnSeparator(String[] lines) {
@@ -82,15 +96,27 @@ public class CsvViewer {
         }
         StringBuilder tableContent = new StringBuilder();
         tableContent.append(lineSeparator());
-        for (int i = 1; i < lines.length; i++) {
-            StringBuilder tableRow = toTableRow(lines[i], maxDelimDistances);
+        for (int rowIndex = FIRST_TABLE_ROW; rowIndex < lines.length; rowIndex++) {
+            StringBuilder tableRow = toTableRow(lines[rowIndex], maxDelimDistances);
             tableContent.append(tableRow);
-            boolean isNotLastLine = i < (lines.length - 1);
+            boolean isNotLastLine = rowIndex < (lines.length - 1);
             if (isNotLastLine) {
                 tableContent.append(lineSeparator());
             }
         }
+        tableContent.append(footer());
         return tableContent.toString();
+    }
+
+    private String footer() {
+        if ( ! footerMustBeAppended) {
+            return EMPTY;
+        }
+        StringBuilder footer = new StringBuilder();
+        footer.append(lineSeparator());
+        footer.append(lineSeparator());
+        footer.append("N(ext page, P(revious page, F(irst page, L(ast page, eX(it");
+        return footer.toString();
     }
 
     private boolean onlyContainsHeader(String[] lines) {
@@ -105,5 +131,9 @@ public class CsvViewer {
             tableRow.append(format("%s%s|", token, repeat(" ", maxDelimiterDistance.get(i) - token.length())));
         }
         return tableRow;
+    }
+
+    public void setTablePageSize(int pageSize) {
+        this.pageSize = pageSize;
     }
 }

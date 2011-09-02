@@ -17,7 +17,7 @@ public class CsvViewerTest {
     public JUnitRuleMockery context = new JUnitRuleMockery();
 
     @Test
-    public void viewOutputContainingHeaderWithOneColumnForGivenCsvFileContent() throws Exception {
+    public void viewOutputContainingHeaderWithOneColumnForGivenCsvFileContent() {
         context.checking(new Expectations() {{
             oneOf(display).print("Name|" + lineSeparator() +
                                  "----+");
@@ -27,7 +27,7 @@ public class CsvViewerTest {
     }
 
     @Test
-    public void viewOutputContainingHeaderWithSeveralColumnsForGivenCsvFileContent() throws Exception {
+    public void viewOutputContainingHeaderWithSeveralColumnsForGivenCsvFileContent() {
         context.checking(new Expectations() {{
             oneOf(display).print("Name|Age|City|" + lineSeparator() +
                                  "----+---+----+");
@@ -38,7 +38,7 @@ public class CsvViewerTest {
     }
 
     @Test
-    public void viewOutputContainingHeaderWithOneColumnAndOneTableLineForGivenCsvFileContent() throws Exception {
+    public void viewOutputContainingHeaderWithOneColumnAndOneTableLineForGivenCsvFileContent() {
         context.checking(new Expectations() {{
             oneOf(display).print("Name |" + lineSeparator() +
                                  "-----+" + lineSeparator() +
@@ -51,7 +51,7 @@ public class CsvViewerTest {
     }
 
     @Test
-    public void viewOutputContainingHeaderWithSeveralColumnsAndOneTableLineForGivenCsvFileContent() throws Exception {
+    public void viewOutputContainingHeaderWithSeveralColumnsAndOneTableLineForGivenCsvFileContent() {
         context.checking(new Expectations() {{
             oneOf(display).print("Name |Age|City    |" + lineSeparator() +
                                  "-----+---+--------+" + lineSeparator() +
@@ -64,7 +64,7 @@ public class CsvViewerTest {
     }
 
     @Test
-    public void viewOutputContainingHeaderWithSeveralColumnsAndSeveralTableLinesForGivenCsvFileContent() throws Exception {
+    public void viewOutputContainingHeaderWithSeveralColumnsAndSeveralTableLinesForGivenCsvFileContent() {
         context.checking(new Expectations() {{
             oneOf(display).print("Name |Age|City    |" + lineSeparator() +
                                  "-----+---+--------+" + lineSeparator() +
@@ -77,6 +77,25 @@ public class CsvViewerTest {
                              "Peter;42;New York;" + lineSeparator() +
                              "Paul;57;London;" + lineSeparator() +
                              "Mary;35;Munich;";
+        csvViewer.view(fileContent);
+    }
+
+    @Test
+    public void showFirstTablePageIfFileContentContainsMoreCvsRowsThanDefaultTablePageSize() {
+        context.checking(new Expectations() {{
+            oneOf(display).print("Name |Age|City    |" + lineSeparator() +
+                                 "-----+---+--------+" + lineSeparator() +
+                                 "Peter|42 |New York|" + lineSeparator() +
+                                 "Paul |57 |London  |" + lineSeparator() +
+                                 "Mary |35 |Munich  |" + lineSeparator() + lineSeparator() +
+                                 "N(ext page, P(revious page, F(irst page, L(ast page, eX(it");
+        }});
+        CsvViewer csvViewer = new CsvViewer(display);
+        String fileContent = "Name;Age;City;" + lineSeparator() +
+                             "Peter;42;New York;" + lineSeparator() +
+                             "Paul;57;London;" + lineSeparator() +
+                             "Mary;35;Munich;" + lineSeparator() +
+                             "Jaques;66;Paris";
         csvViewer.view(fileContent);
     }
 }

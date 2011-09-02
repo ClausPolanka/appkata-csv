@@ -12,6 +12,7 @@ import java.io.PrintStream;
 import static java.lang.System.lineSeparator;
 import static org.apache.commons.io.FileUtils.deleteQuietly;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 
@@ -29,7 +30,7 @@ public class CsvViewerEndToEndTest {
     }
 
     @Test
-    public void showCsvFileContainingSeveralHeaderColumnsAndSeveralTableLines() throws Exception {
+    public void showCsvFileContainingSeveralHeaderColumnsAndSeveralTableLines() {
         String fileContent = "Name;Age;City;" + lineSeparator() +
                              "Peter;42;New York;" + lineSeparator() +
                              "Paul;57;London;" + lineSeparator() +
@@ -41,7 +42,26 @@ public class CsvViewerEndToEndTest {
                                          "Peter|42 |New York|" + lineSeparator() +
                                          "Paul |57 |London  |" + lineSeparator() +
                                          "Mary |35 |Munich  |";
-        assertEquals("Csv Viewer Output", expectedCsvViewerOutput, generatedCvsViewerOutput());
+        assertThat("Csv Viewer Output", expectedCsvViewerOutput, is(equalTo(generatedCvsViewerOutput())));
+    }
+
+    @Test
+    public void showFirstPageOfGeneratedTableIfCsvContentContainsMoreRowsThanTheDefaultPageRowLimitOf3() {
+        String fileContent = "Name;Age;City;" + lineSeparator() +
+                             "Peter;42;New York;" + lineSeparator() +
+                             "Paul;57;London;" + lineSeparator() +
+                             "Mary;35;Munich;" + lineSeparator() +
+                             "Jaques;66;Paris";
+        aCsvFile.withName(FILE_NAME).containing(fileContent).build();
+        client.startsCsvViewerForFile(FILE_NAME);
+        String expectedCsvViewerOutput = "Name |Age|City    |" + lineSeparator() +
+                                         "-----+---+--------+" + lineSeparator() +
+                                         "Peter|42 |New York|" + lineSeparator() +
+                                         "Paul |57 |London  |" + lineSeparator() +
+                                         "Mary |35 |Munich  |" + lineSeparator() + lineSeparator() +
+                                         "N(ext page, P(revious page, F(irst page, L(ast page, eX(it";
+
+        assertThat("Csv Viewer Output", expectedCsvViewerOutput, is(equalTo(generatedCvsViewerOutput())));
     }
 
     private String generatedCvsViewerOutput() {
