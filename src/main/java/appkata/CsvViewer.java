@@ -1,21 +1,17 @@
 package appkata;
 
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.HashMap;
 import java.util.StringTokenizer;
 
 import static java.lang.Math.max;
 import static java.lang.String.format;
 import static java.lang.System.lineSeparator;
-import static org.apache.commons.lang3.StringUtils.EMPTY;
-import static org.apache.commons.lang3.StringUtils.repeat;
-import static org.apache.commons.lang3.StringUtils.split;
+import static org.apache.commons.lang3.StringUtils.*;
 
 public class CsvViewer {
     private static final String HEADER_COLUMN_SEPARATOR = "|";
+    private static final String CVS_COLUMN_SEPARATOR = ";";
     private static final int HEADER_ROW = 0;
-    private static final String COLUMN_SEPARATOR = ";";
 
     private final Display display;
 
@@ -45,7 +41,7 @@ public class CsvViewer {
     }
 
     private void putMaximumDistanceFor(String line, HashMap<Integer, Integer> maxDelimDistances) {
-        StringTokenizer tokenizer = new StringTokenizer(line, COLUMN_SEPARATOR);
+        StringTokenizer tokenizer = new StringTokenizer(line, CVS_COLUMN_SEPARATOR);
         for (int columnIndex = 0; tokenizer.hasMoreElements(); columnIndex++) {
             Integer currentMaxDistance = maxDelimDistances.get(columnIndex);
             String token = tokenizer.nextToken();
@@ -55,7 +51,7 @@ public class CsvViewer {
 
     private String createHeaderFor(String firstLineOfFile, HashMap<Integer, Integer> maxDelimDistances) {
         StringBuilder headerColumns = new StringBuilder();
-        StringTokenizer st = new StringTokenizer(withoutLineSeparator(firstLineOfFile), COLUMN_SEPARATOR);
+        StringTokenizer st = new StringTokenizer(withoutLineSeparator(firstLineOfFile), CVS_COLUMN_SEPARATOR);
         for (int columnIndex = 0; st.hasMoreTokens(); columnIndex++) {
             String column = st.nextToken();
             Integer delimDistance = maxDelimDistances.get(columnIndex);
@@ -103,7 +99,7 @@ public class CsvViewer {
 
     private StringBuilder toTableRow(String line, HashMap<Integer, Integer> maxDelimiterDistance) {
         StringBuilder tableRow = new StringBuilder();
-        StringTokenizer tokenizer = new StringTokenizer(line, COLUMN_SEPARATOR);
+        StringTokenizer tokenizer = new StringTokenizer(line, CVS_COLUMN_SEPARATOR);
         for (int i = 0; tokenizer.hasMoreTokens(); i++) {
             String token = tokenizer.nextToken();
             tableRow.append(format("%s%s|", token, repeat(" ", maxDelimiterDistance.get(i) - token.length())));

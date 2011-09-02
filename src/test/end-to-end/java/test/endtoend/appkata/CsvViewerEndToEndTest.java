@@ -12,7 +12,6 @@ import java.io.PrintStream;
 import static java.lang.System.lineSeparator;
 import static org.apache.commons.io.FileUtils.deleteQuietly;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 
@@ -42,10 +41,10 @@ public class CsvViewerEndToEndTest {
                                          "Peter|42 |New York|" + lineSeparator() +
                                          "Paul |57 |London  |" + lineSeparator() +
                                          "Mary |35 |Munich  |";
-        assertEquals("Csv Viewer Output", expectedCsvViewerOutput, cvsViewerOutput());
+        assertEquals("Csv Viewer Output", expectedCsvViewerOutput, generatedCvsViewerOutput());
     }
 
-    private String cvsViewerOutput() {
+    private String generatedCvsViewerOutput() {
         ByteArrayInputStream inStream = new ByteArrayInputStream(fos.toByteArray());
         int inBytes = inStream.available();
         byte inBuf[] = new byte[inBytes];
