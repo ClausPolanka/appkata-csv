@@ -8,6 +8,7 @@ import static java.lang.String.format;
 import static java.lang.System.lineSeparator;
 import static java.util.Arrays.copyOfRange;
 import static org.apache.commons.lang3.StringUtils.*;
+import static org.apache.commons.lang3.StringUtils.split;
 
 public class CsvViewer {
     private static final String HEADER_COLUMN_SEPARATOR = "|";
@@ -25,12 +26,11 @@ public class CsvViewer {
     }
 
     public void view(String fileContent) {
-        String[] fileContentRows = split(fileContent, lineSeparator());
-        fileContentRows = splitIntoTablePages(fileContentRows);
-        HashMap<Integer, Integer> separatorDistances = calculateMaximumDistancesForColumnSeparator(fileContentRows);
-        String headerColumns = createHeaderFor(fileContentRows[HEADER_ROW_INDEX], separatorDistances);
+        String[] fileContentTableRows = splitIntoTablePages(fileContent);
+        HashMap<Integer, Integer> separatorDistances = calculateMaximumDistancesForColumnSeparator(fileContentTableRows);
+        String headerColumns = createHeaderFor(fileContentTableRows[HEADER_ROW_INDEX], separatorDistances);
         String headerSeparator = createHeaderSeparatorFor(headerColumns);
-        String tableContent = createTableContentFor(fileContentRows, separatorDistances);
+        String tableContent = createTableContentFor(fileContentTableRows, separatorDistances);
         StringBuilder output = new StringBuilder();
         output.append(headerColumns + lineSeparator())
               .append(headerSeparator)
@@ -38,12 +38,17 @@ public class CsvViewer {
         display.print(output.toString());
     }
 
-    private String[] splitIntoTablePages(String[] fileContentRows) {
-        if ((fileContentRows.length - HEADER_ROW) > pageSize) {
+    private String[] splitIntoTablePages(String fileContent) {
+        String[] fileContentRows = split(fileContent, lineSeparator());
+        if (footerMustBeAppended(fileContentRows)) {
             footerMustBeAppended = true;
             fileContentRows = copyOfRange(fileContentRows, HEADER_ROW_INDEX, HEADER_ROW + pageSize);
         }
         return fileContentRows;
+    }
+
+    private boolean footerMustBeAppended(String[] fileContentRows) {
+        return (fileContentRows.length - HEADER_ROW) > pageSize;
     }
 
     private HashMap<Integer, Integer> calculateMaximumDistancesForColumnSeparator(String[] lines) {
