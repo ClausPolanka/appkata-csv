@@ -11,134 +11,118 @@ import static org.apache.commons.lang3.StringUtils.*;
 import static org.apache.commons.lang3.StringUtils.split;
 
 public class CsvViewer {
+    public static final int HEADER_ROW_INDEX = 0;
     private static final String HEADER_COLUMN_SEPARATOR = "|";
-    private static final String CVS_COLUMN_SEPARATOR = ";";
-    private static final int HEADER_ROW_INDEX = 0;
-    private static final int HEADER_ROW = 1;
+    static final String CVS_COLUMN_SEPARATOR = ";";
     private static final int FIRST_TABLE_ROW = 1;
+    private static final String WHITE_SPACE = " ";
 
     private final Display display;
     private int pageSize = 3;
+    private CsvTablePageSplitter csvTablePageSplitter = new CsvTablePageSplitter(pageSize, this);
+    private MaximumDistanceCalculator maximumDistanceCalculator = new MaximumDistanceCalculator();
     private boolean footerMustBeAppended;
 
     public CsvViewer(Display display) {
         this.display = display;
     }
-
     public void view(String fileContent) {
-        String[] fileContentTableRows = splitIntoTablePages(fileContent);
-        HashMap<Integer, Integer> separatorDistances = calculateMaximumDistancesForColumnSeparator(fileContentTableRows);
+        String[] fileContentTableRows = csvTablePageSplitter.splitIntoTablePages(fileContent);
+        HashMap<Integer, Integer> separatorDistances = maximumDistanceCalculator.calculateMaximumDistancesForColumnSeparator(fileContentTableRows);
         String headerColumns = createHeaderFor(fileContentTableRows[HEADER_ROW_INDEX], separatorDistances);
         String headerSeparator = createHeaderSeparatorFor(headerColumns);
         String tableContent = createTableContentFor(fileContentTableRows, separatorDistances);
-        StringBuilder output = new StringBuilder();
-        output.append(headerColumns + lineSeparator())
-              .append(headerSeparator)
-              .append(tableContent);
-        display.print(output.toString());
+        display.print(headerColumns + lineSeparator() + headerSeparator + tableContent);
     }
 
-    private String[] splitIntoTablePages(String fileContent) {
-        String[] fileContentRows = split(fileContent, lineSeparator());
-        if (footerMustBeAppended(fileContentRows)) {
-            footerMustBeAppended = true;
-            fileContentRows = copyOfRange(fileContentRows, HEADER_ROW_INDEX, HEADER_ROW + pageSize);
+    private String createHeaderFor(String firstLineOfFile, HashMap<Integer, Integer> allMaxDelimDistances) {
+        String headerColumns = EMPTY;
+        StringTokenizer tokenizer = new StringTokenizer(withoutLineSeparator(firstLineOfFile), CVS_COLUMN_SEPARATOR);
+        for (int columnIndex = 0; tokenizer.hasMoreTokens(); columnIndex++) {
+            String column = tokenizer.nextToken();
+            int max = calculateMaximumOfDelimiterDistance(allMaxDelimDistances, columnIndex, column);
+            headerColumns += format("%s%s%s", column, repeat(WHITE_SPACE, max - column.length()), HEADER_COLUMN_SEPARATOR);
         }
-        return fileContentRows;
-    }
-
-    private boolean footerMustBeAppended(String[] fileContentRows) {
-        return (fileContentRows.length - HEADER_ROW) > pageSize;
-    }
-
-    private HashMap<Integer, Integer> calculateMaximumDistancesForColumnSeparator(String[] lines) {
-        HashMap<Integer, Integer> maxDelimDistances = new HashMap<Integer, Integer>();
-        for (int lineIndex = 1; lineIndex < lines.length; lineIndex++) {
-            putMaximumDistanceFor(lines[lineIndex], maxDelimDistances);
-        }
-        return maxDelimDistances;
-    }
-
-    private void putMaximumDistanceFor(String line, HashMap<Integer, Integer> maxDelimDistances) {
-        StringTokenizer tokenizer = new StringTokenizer(line, CVS_COLUMN_SEPARATOR);
-        for (int columnIndex = 0; tokenizer.hasMoreElements(); columnIndex++) {
-            Integer currentMaxDistance = maxDelimDistances.get(columnIndex);
-            String token = tokenizer.nextToken();
-            maxDelimDistances.put(columnIndex, max(currentMaxDistance == null ? 0 : currentMaxDistance, token.length()));
-        }
-    }
-
-    private String createHeaderFor(String firstLineOfFile, HashMap<Integer, Integer> maxDelimDistances) {
-        StringBuilder headerColumns = new StringBuilder();
-        StringTokenizer st = new StringTokenizer(withoutLineSeparator(firstLineOfFile), CVS_COLUMN_SEPARATOR);
-        for (int columnIndex = 0; st.hasMoreTokens(); columnIndex++) {
-            String column = st.nextToken();
-            Integer delimDistance = maxDelimDistances.get(columnIndex);
-            int max = max(column.length(), delimDistance == null ? 0 : delimDistance);
-            maxDelimDistances.put(columnIndex, max);
-            headerColumns.append(format("%s%s%s", column, repeat(" ", max - column.length()), HEADER_COLUMN_SEPARATOR));
-        }
-        return headerColumns.toString();
+        return headerColumns;
     }
 
     private String withoutLineSeparator(String fileContent) {
-        return fileContent.replace(lineSeparator(), "");
+        return fileContent.replace(lineSeparator(), EMPTY);
+    }
+
+    private int calculateMaximumOfDelimiterDistance(HashMap<Integer, Integer> maxDelimDistances, int columnIndex, String column) {
+        Integer delimDistance = maxDelimDistances.get(columnIndex);
+        int max = max(column.length(), delimDistance == null ? 0 : delimDistance);
+        maxDelimDistances.put(columnIndex, max);
+        return max;
     }
 
     private String createHeaderSeparatorFor(String headerColumns) {
-        StringBuilder headerSeparator = new StringBuilder();
+        String headerSeparator = EMPTY;
         StringTokenizer st = new StringTokenizer(headerColumns, HEADER_COLUMN_SEPARATOR);
         while (st.hasMoreTokens()) {
             String column = st.nextToken();
-            headerSeparator.append(format("%s+", repeat("-", column.length())));
+            headerSeparator += format("%s+", repeat("-", column.length()));
         }
-        return headerSeparator.toString();
+        return headerSeparator;
     }
 
     private String createTableContentFor(String[] lines, HashMap<Integer, Integer> maxDelimDistances) {
         if (onlyContainsHeader(lines)) {
             return EMPTY;
         }
-        StringBuilder tableContent = new StringBuilder();
-        tableContent.append(lineSeparator());
-        for (int rowIndex = FIRST_TABLE_ROW; rowIndex < lines.length; rowIndex++) {
-            StringBuilder tableRow = toTableRow(lines[rowIndex], maxDelimDistances);
-            tableContent.append(tableRow);
-            boolean isNotLastLine = rowIndex < (lines.length - 1);
-            if (isNotLastLine) {
-                tableContent.append(lineSeparator());
-            }
-        }
-        tableContent.append(footer());
-        return tableContent.toString();
-    }
-
-    private String footer() {
-        if ( ! footerMustBeAppended) {
-            return EMPTY;
-        }
-        StringBuilder footer = new StringBuilder();
-        footer.append(lineSeparator());
-        footer.append(lineSeparator());
-        footer.append("N(ext page, P(revious page, F(irst page, L(ast page, eX(it");
-        return footer.toString();
+        String tableContent = lineSeparator();
+        tableContent += tableContentRows(lines, maxDelimDistances);
+        tableContent += footer();
+        return tableContent;
     }
 
     private boolean onlyContainsHeader(String[] lines) {
         return lines.length <= 1;
     }
 
-    private StringBuilder toTableRow(String line, HashMap<Integer, Integer> maxDelimiterDistance) {
-        StringBuilder tableRow = new StringBuilder();
+    private String tableContentRows(String[] lines, HashMap<Integer, Integer> maxDelimDistances) {
+        String tableContent = EMPTY;
+        for (int rowIndex = FIRST_TABLE_ROW; rowIndex < lines.length; rowIndex++) {
+            tableContent += toTableRow(lines[rowIndex], maxDelimDistances);
+            boolean isNotLastLine = rowIndex < (lines.length - 1);
+            if (isNotLastLine) {
+                tableContent += lineSeparator();
+            }
+        }
+        return tableContent;
+    }
+
+    private String toTableRow(String line, HashMap<Integer, Integer> maxDelimiterDistances) {
+        String tableRow = EMPTY;
         StringTokenizer tokenizer = new StringTokenizer(line, CVS_COLUMN_SEPARATOR);
         for (int i = 0; tokenizer.hasMoreTokens(); i++) {
             String token = tokenizer.nextToken();
-            tableRow.append(format("%s%s|", token, repeat(" ", maxDelimiterDistance.get(i) - token.length())));
+            tableRow += columnContentWithAppliedWhiteSpacesToSeparator(maxDelimiterDistances, i, token);
         }
         return tableRow;
     }
 
+    private String columnContentWithAppliedWhiteSpacesToSeparator(HashMap<Integer, Integer> maxDelimiterDistances, int i, String token) {
+        return format("%s%s|", token, numberOfWhiteSpacesToSeparator(maxDelimiterDistances, i, token));
+    }
+
+    private String numberOfWhiteSpacesToSeparator(HashMap<Integer, Integer> maxDelimiterDistances, int i, String token) {
+        return repeat(WHITE_SPACE, maxDelimiterDistances.get(i) - token.length());
+    }
+
+    private String footer() {
+        if ( ! footerMustBeAppended) {
+            return EMPTY;
+        }
+        return lineSeparator() + lineSeparator() + "N(ext page, P(revious page, F(irst page, L(ast page, eX(it";
+    }
+
     public void setTablePageSize(int pageSize) {
         this.pageSize = pageSize;
+    }
+
+    public void footerMustBeAppended() {
+        footerMustBeAppended = true;
     }
 }
