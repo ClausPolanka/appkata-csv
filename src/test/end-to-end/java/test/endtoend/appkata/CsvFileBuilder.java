@@ -1,11 +1,6 @@
 package test.endtoend.appkata;
 
-import appkata.Main;
-import org.apache.commons.io.FileUtils;
-
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 
 import static appkata.Main.FILE_ENCODING;
