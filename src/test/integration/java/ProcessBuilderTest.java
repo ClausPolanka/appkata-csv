@@ -16,6 +16,7 @@ public class ProcessBuilderTest {
     private static final String FILE_NAME = "simple.bat";
     private static final String EXPECTED_OUTPUT = "Hello World";
     private static final File CURRENT_DIRECTORY = new File(".");
+    private static final String END_OF_LINE_WITHOUT_SPECIAL_LINE_CHAR_ENDING = "\\Z";
 
     @Test
     public void executeSelfMadeBatchFileAndReadOutput() throws Exception {
@@ -30,7 +31,7 @@ public class ProcessBuilderTest {
     }
 
     private String outputOf(Process p) {
-        Scanner s = new Scanner(p.getInputStream()).useDelimiter("\\Z");
+        Scanner s = new Scanner(p.getInputStream()).useDelimiter(END_OF_LINE_WITHOUT_SPECIAL_LINE_CHAR_ENDING);
         return s.next();
     }
 
