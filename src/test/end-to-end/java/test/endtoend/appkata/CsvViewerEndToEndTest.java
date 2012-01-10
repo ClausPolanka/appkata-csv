@@ -1,16 +1,12 @@
 package test.endtoend.appkata;
 
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.PrintStream;
 
 import static java.lang.System.lineSeparator;
-import static java.lang.System.setErr;
 import static org.apache.commons.io.FileUtils.deleteQuietly;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;

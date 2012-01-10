@@ -1,13 +1,14 @@
 package test.endtoend.appkata;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 import static appkata.Main.FILE_ENCODING;
 import static java.lang.System.lineSeparator;
 import static org.apache.commons.io.FileUtils.deleteQuietly;
 import static org.apache.commons.io.FileUtils.writeStringToFile;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
 
 public class ApplicationRunner {
     private static final String APPLICATION_NAME = "csvviewer.bat";
