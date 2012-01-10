@@ -8,10 +8,6 @@
       <sourceFolder url="file://$MODULE_DIR$/src/main/resources" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/end-to-end/java" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/end-to-end/resources" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/test/unit/resources" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/test/unit/java" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/test/integration/java" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/test/integration/resources" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />
