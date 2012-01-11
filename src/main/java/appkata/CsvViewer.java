@@ -3,35 +3,38 @@ package appkata;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 
+import static appkata.MaximumDistanceCalculator.calcMaxDistancesForColumnSeparator;
 import static java.lang.Math.max;
 import static java.lang.String.format;
 import static java.lang.System.lineSeparator;
-import static java.util.Arrays.copyOfRange;
-import static org.apache.commons.lang3.StringUtils.*;
-import static org.apache.commons.lang3.StringUtils.split;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static org.apache.commons.lang3.StringUtils.repeat;
 
 public class CsvViewer {
     public static final int HEADER_ROW_INDEX = 0;
-    private static final String HEADER_COLUMN_SEPARATOR = "|";
-    static final String CVS_COLUMN_SEPARATOR = ";";
+
     private static final int FIRST_TABLE_ROW = 1;
+    private static final String HEADER_COLUMN_SEPARATOR = "|";
     private static final String WHITE_SPACE = " ";
 
-    private final Display display;
+    static final String CVS_COLUMN_SEPARATOR = ";";
+
     private int pageSize = 3;
-    private CsvTablePageSplitter csvTablePageSplitter = new CsvTablePageSplitter(pageSize, this);
-    private MaximumDistanceCalculator maximumDistanceCalculator = new MaximumDistanceCalculator();
     private boolean footerMustBeAppended;
+    private CsvTableRowSplitter splitter = new CsvTableRowSplitter(pageSize, this);
+
+    private final Display display;
 
     public CsvViewer(Display display) {
         this.display = display;
     }
+
     public void view(String fileContent) {
-        String[] fileContentTableRows = csvTablePageSplitter.splitIntoTablePages(fileContent);
-        HashMap<Integer, Integer> separatorDistances = maximumDistanceCalculator.calculateMaximumDistancesForColumnSeparator(fileContentTableRows);
-        String headerColumns = createHeaderFor(fileContentTableRows[HEADER_ROW_INDEX], separatorDistances);
+        String[] tableRows = splitter.toTableRows(fileContent);
+        HashMap<Integer, Integer> separatorDistances = calcMaxDistancesForColumnSeparator(tableRows);
+        String headerColumns = createHeaderFor(tableRows[HEADER_ROW_INDEX], separatorDistances);
         String headerSeparator = createHeaderSeparatorFor(headerColumns);
-        String tableContent = createTableContentFor(fileContentTableRows, separatorDistances);
+        String tableContent = createTableContentFor(tableRows, separatorDistances);
         display.print(headerColumns + lineSeparator() + headerSeparator + tableContent);
     }
 
