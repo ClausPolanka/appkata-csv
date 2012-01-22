@@ -1,7 +1,7 @@
 package appkata;
 
 public class ConsoleDisplay implements Display {
-    public void print(String result) {
+    public void view(String... result) {
         System.out.println(result);
     }
 }

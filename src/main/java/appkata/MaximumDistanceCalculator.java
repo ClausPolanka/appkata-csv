@@ -3,7 +3,7 @@ package appkata;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 
-import static appkata.CsvViewer.CVS_COLUMN_SEPARATOR;
+import static appkata.CsvConverter.CVS_COLUMN_SEPARATOR;
 import static java.lang.Math.max;
 
 public class MaximumDistanceCalculator {

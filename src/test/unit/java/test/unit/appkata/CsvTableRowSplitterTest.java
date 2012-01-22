@@ -1,7 +1,7 @@
 package test.unit.appkata;
 
+import appkata.CsvConverter;
 import appkata.CsvTableRowSplitter;
-import appkata.CsvViewer;
 import appkata.Display;
 import org.junit.Test;
 
@@ -10,14 +10,14 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class CsvTableRowSplitterTest {
-    private static final CsvViewer IGNORE_CSV_VIEWER = null;
+    private static final CsvConverter IGNORE_CSV_CONVERTER = null;
     private static final String EMPTY_FILE_CONTENT = "";
     private static final Display IGNORE_DISPLAY = null;
     private static final int IGNORE_DEFAULT_PAGE_SIZE = 0;
 
     @Test
     public void givenAnEmptyFileContentNothingIsSplit() {
-        CsvTableRowSplitter splitter = new CsvTableRowSplitter(IGNORE_DEFAULT_PAGE_SIZE, IGNORE_CSV_VIEWER);
+        CsvTableRowSplitter splitter = new CsvTableRowSplitter(IGNORE_DEFAULT_PAGE_SIZE, IGNORE_CSV_CONVERTER);
         String[] rows = splitter.toTableRows(EMPTY_FILE_CONTENT);
         assertThat("Table rows", rows, is(StringArrayBeautifier.emptyStringArray()));
     }
@@ -25,7 +25,7 @@ public class CsvTableRowSplitterTest {
     @Test
     public void whenLineNumberIsLowerThanDefaultPageSizeReturnTheSame() {
         int defaultPageSize = 3;
-        CsvTableRowSplitter splitter = new CsvTableRowSplitter(defaultPageSize, IGNORE_CSV_VIEWER);
+        CsvTableRowSplitter splitter = new CsvTableRowSplitter(defaultPageSize, IGNORE_CSV_CONVERTER);
 
         String[] rows = splitter.toTableRows("Header" + lineSeparator() +
                                              "Word_1" + lineSeparator() +
@@ -38,7 +38,7 @@ public class CsvTableRowSplitterTest {
     public void whenLineNumberIsHigherThanDefaultPageSizeCsvViewerMustAppendFooter() {
         int defaultPageSize = 3;
         CsvTableRowSplitter splitter = new CsvTableRowSplitter(defaultPageSize,
-                new CsvViewer(IGNORE_DISPLAY) {
+                new CsvConverter(IGNORE_DISPLAY) {
                     @Override
                     public void footerMustBeAppended() {
                         int call = 0;

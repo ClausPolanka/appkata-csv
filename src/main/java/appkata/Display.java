@@ -1,5 +1,7 @@
 package appkata;
 
 public interface Display {
-    void print(String result);
+
+    void view(String... pages);
+
 }

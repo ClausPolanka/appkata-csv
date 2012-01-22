@@ -10,7 +10,7 @@ import static java.lang.System.lineSeparator;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.repeat;
 
-public class CsvViewer {
+public class CsvConverter {
     public static final int HEADER_ROW_INDEX = 0;
 
     private static final int FIRST_TABLE_ROW = 1;
@@ -25,17 +25,17 @@ public class CsvViewer {
 
     private final Display display;
 
-    public CsvViewer(Display display) {
+    public CsvConverter(Display display) {
         this.display = display;
     }
 
-    public void view(String fileContent) {
+    public void convert(String fileContent) {
         String[] tableRows = splitter.toTableRows(fileContent);
         HashMap<Integer, Integer> separatorDistances = calcMaxDistancesForColumnSeparator(tableRows);
         String headerColumns = createHeaderFor(tableRows[HEADER_ROW_INDEX], separatorDistances);
         String headerSeparator = createHeaderSeparatorFor(headerColumns);
         String tableContent = createTableContentFor(tableRows, separatorDistances);
-        display.print(headerColumns + lineSeparator() + headerSeparator + tableContent);
+        display.view(headerColumns + lineSeparator() + headerSeparator + tableContent);
     }
 
     private String createHeaderFor(String firstLineOfFile, HashMap<Integer, Integer> allMaxDelimDistances) {

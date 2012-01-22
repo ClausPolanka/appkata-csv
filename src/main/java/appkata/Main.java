@@ -10,8 +10,8 @@ public class Main {
     public static final String FILE_ENCODING = "UTF-8";
 
     public static void main(String... args) {
-        CsvViewer csvViewer = new CsvViewer(new ConsoleDisplay());
-        csvViewer.view(fileContentOf(args[ARGS_FILE_NAME]));
+        CsvConverter csvConverter = new CsvConverter(new ConsoleDisplay());
+        csvConverter.convert(fileContentOf(args[ARGS_FILE_NAME]));
     }
 
     private static String fileContentOf(String fileName) {
