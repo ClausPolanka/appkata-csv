@@ -19,7 +19,7 @@ public class ReadingFromConsoleTest {
     public InputProcessor inputProcessor;
 
     @Mock
-    public Keyboard keyboard;
+    public InputDevice keyboard;
 
     @Test
     public void testOneInputFromKeyBoard() throws Exception {
@@ -60,7 +60,7 @@ public class ReadingFromConsoleTest {
         void process(String input);
     }
 
-    interface Keyboard {
+    interface InputDevice {
         String getInput();
     }
 
@@ -71,9 +71,9 @@ public class ReadingFromConsoleTest {
             this.inputProcessor = inputProcessor;
         }
 
-        public void readInputFrom(Keyboard keyboard) {
+        public void readInputFrom(InputDevice inputDevice) {
             while (true) {
-                String input = keyboard.getInput();
+                String input = inputDevice.getInput();
                 if (input.equals("quit")) {
                     break;
                 }
@@ -81,7 +81,8 @@ public class ReadingFromConsoleTest {
             }
         }
     }
-    static class ConsoleKeyboard implements Keyboard {
+
+    static class Keyboard implements InputDevice {
         private BufferedReader keyboard = new BufferedReader(new InputStreamReader(System.in));
         @Override
         public String getInput() {
@@ -101,7 +102,7 @@ public class ReadingFromConsoleTest {
                     System.out.println(input);
                 }
             });
-            app.readInputFrom(new ConsoleKeyboard());
+            app.readInputFrom(new Keyboard());
         }
     }
 }
