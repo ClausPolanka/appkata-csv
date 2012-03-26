@@ -25,6 +25,8 @@
     <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.8.1" level="project" />
     <orderEntry type="library" name="Maven: commons-io:commons-io:2.0.1" level="project" />
     <orderEntry type="library" name="Maven: org.apache.commons:commons-lang3:3.0.1" level="project" />
+    <orderEntry type="library" name="Window Licker" level="application" />
+    <orderEntry type="library" name="Smack Client Library" level="application" />
   </component>
   <component name="org.twodividedbyzero.idea.findbugs">
     <option name="_basePreferences">

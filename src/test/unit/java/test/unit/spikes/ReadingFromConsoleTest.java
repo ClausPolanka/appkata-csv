@@ -12,23 +12,19 @@ import java.io.InputStreamReader;
 
 public class ReadingFromConsoleTest {
 
-    @Rule
-    public JUnitRuleMockery context = new JUnitRuleMockery();
-
-    @Mock
-    public InputProcessor inputProcessor;
-
-    @Mock
-    public InputDevice keyboard;
+    @Rule public JUnitRuleMockery context = new JUnitRuleMockery();
+    @Mock public InputProcessor inputProcessor;
+    @Mock public InputDevice keyboard;
 
     @Test
-    public void testOneInputFromKeyBoard() throws Exception {
+    public void applicationReceivesOneInputFromKeyboard() {
         context.checking(new Expectations() {{
             oneOf(keyboard).getInput(); will(returnValue("quit"));
         }});
         Application app = new Application(inputProcessor);
         app.readInputFrom(keyboard);
     }
+
     @Test
     public void testTwoInputsFromKeyBoard() throws Exception {
         context.checking(new Expectations() {{
@@ -41,6 +37,7 @@ public class ReadingFromConsoleTest {
         Application app = new Application(inputProcessor);
         app.readInputFrom(keyboard);
     }
+
     @Test
     public void testThreeInputsFromKeyBoard() throws Exception {
         context.checking(new Expectations() {{
